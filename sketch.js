@@ -4,88 +4,67 @@ function setup() {
 
 function draw() {
   background(220);
-}
-let carroX = 0;
-
 function setup() {
   createCanvas(800, 400);
 }
 
 function draw() {
-  background(200, 255, 255); // Céu claro
+  let t = constrain(map(mouseX, 0, width, 0, 1), 0, 1);
+  
+  // Céu
+  let skyColor = lerpColor(color(135, 206, 235), color(180, 180, 180), t); // Azul para preto
+  background(skyColor);
 
-  drawCampo();
-  drawCidade();
-  drawEstrada();
-  drawCarro();
-
-  // Movimento do carro
-  carroX += 2;
-  if (carroX > width) {
-    carroX = -100;
-  }
+  drawGround(t);
+  drawNature(t);
+  drawCity(t);
+  drawMessage(t);
 }
 
-function drawCampo() {
-  // Grama
-  fill(34, 139, 34);
-  rect(0, 300, width / 2, 100);
-
-  // Sol
-  fill(255, 204, 0);
-  ellipse(80, 80, 60);
-
-  // Casa da fazenda
-  fill(210, 105, 30);
-  rect(100, 220, 80, 60);
-  fill(150, 75, 0);
-  triangle(100, 220, 140, 180, 180, 220);
-
-  // Árvore
-  fill(139, 69, 19);
-  rect(200, 240, 10, 60);
-  fill(34, 139, 34);
-  ellipse(205, 230, 40);
-}
-
-function drawCidade() {
-  // Prédios
-  fill(180);
-  for (let i = 0; i < 3; i++) {
-    rect(500 + i * 60, 180 - i * 20, 40, 120 + i * 20);
-
-    // Janelas
-    fill(255, 255, 102);
-    for (let j = 0; j < 4; j++) {
-      rect(505 + i * 60, 190 + j * 20 - i * 10, 10, 10);
-      rect(520 + i * 60, 190 + j * 20 - i * 10, 10, 10);
-    }
-    fill(180); // Reset fill
-  }
-
-  // Asfalto urbano
-  fill(50);
-  rect(width / 2, 300, width / 2, 100);
-}
-
-function drawEstrada() {
-  fill(50);
-  rect(0, 330, width, 40);
-
-  // Faixas amarelas
-  stroke(255, 255, 0);
-  strokeWeight(2);
-  for (let x = 0; x < width; x += 40) {
-    line(x, 350, x + 20, 350);
-  }
+function drawGround(t) {
+  let groundColor = lerpColor(color(50, 200, 70), color(120), t);
+  fill(groundColor);
   noStroke();
+  rect(0, height * 0.7, width, height * 0.3);
 }
 
-function drawCarro() {
-  // Caminhão simples
-  fill(255, 0, 0);
-  rect(carroX, 310, 60, 20);
-  fill(0);
-  ellipse(carroX + 10, 330, 15);
-  ellipse(carroX + 50, 330, 15);
+function drawNature(t) {
+  // Árvore (aparece no lado esquerdo, desaparece com t)
+  push();
+  let treeX = width * 0.25;
+  let treeAlpha = map(1 - t, 0, 1, 0, 255);
+  fill(139, 69, 19, treeAlpha);
+  rect(treeX, 220, 20, 80); // Tronco
+  fill(34, 139, 34, treeAlpha);
+  ellipse(treeX + 10, 200, 80, 80); // Copa
+  pop();
 }
+
+function drawCity(t) {
+  // Prédios (aparecem no lado direito com o tempo)
+  let buildingColor = lerpColor(color(200), color(80), t);
+  let maxBuildings = 5;
+
+  for (let i = 0; i < maxBuildings; i++) {
+    let x = width * 0.5 + i * 60;
+    let h = 100 + i * 20;
+    let alpha = map(t, 0, 1, 0, 255);
+
+    rect(x, height * 0.7 - h, 40, h);
+  }
+}
+
+function drawMessage(t) {
+  fill(0);
+  textSize(18);
+  textAlign(CENTER);
+  
+  if (t < 0.3) {
+    text("Campo: natureza, vida simples e verde escuro", width / 2, 30);
+  } else if (t < 0.7) {
+    text("Transição: do campo para a cidade", width / 2, 30);
+  } else {
+    text("Cidade: modernidade, desafios e oportunidades", width / 2, 30);
+  }
+}
+
